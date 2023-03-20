@@ -12,6 +12,7 @@ export type PostDocument = HydratedDocument<Post>;
       getters: true,
       virtuals: true,
     },
+    timestamps: true,
 })
 export class Post {
     @ApiProperty({ example: 'Xyx', description: 'The title of the Post' })

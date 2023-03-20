@@ -11,6 +11,7 @@ export type CategoryDocument = HydratedDocument<Category>;
       getters: true,
       virtuals: true,
     },
+    timestamps: true,
   })
 export class Category {
     @ApiProperty({ example: 'Xyx', description: 'The title of the Category' })

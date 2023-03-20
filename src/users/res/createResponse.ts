@@ -14,6 +14,7 @@ class CreateUserResponse {
     })
     data?: User;
 
+
 }
 const createResponse:ApiResponseOptions = {
     status: 201, 

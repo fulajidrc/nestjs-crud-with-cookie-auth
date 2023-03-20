@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
 import { ApiProperty } from '@nestjs/swagger';
+import { Language } from "src/languages/entities/language.entity";
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -9,6 +10,7 @@ export type UserDocument = HydratedDocument<User>;
       getters: true,
       virtuals: true,
     },
+    timestamps: true,
   })
 export class User {
     @ApiProperty({ example: 'Test Name', description: 'The name of the User' })
@@ -30,6 +32,9 @@ export class User {
     _id?: string;
 
     sub?: string;
+
+    @Prop({type: Array<Language>})
+    languages: [Language]
 
 }
 

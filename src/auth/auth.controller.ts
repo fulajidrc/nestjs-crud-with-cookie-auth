@@ -50,12 +50,14 @@ export class AuthController {
     @ApiResponse(ForbiddenResponse)
     @ApiResponse(UnauthorizedResponse)
     async login(@Request() req, @Res({ passthrough: true }) res) {
-        console.log(req.user);
+        // console.log(req.user);
         const tokenData = await this.authService.login(req.user);
         const secretData = {
             token: tokenData.access_token
         }
-        res.cookie('auth-cookie', secretData, { httpOnly: true });
+        res.cookie('auth-cookie', secretData);
+
+        //res.cookie('auth-cookie', secretData, { httpOnly: false , domain: 'localhost'});
         return {message: 'User login', data: req.user}
     }
 

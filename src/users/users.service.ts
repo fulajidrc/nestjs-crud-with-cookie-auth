@@ -13,6 +13,7 @@ export class UsersService {
   ){}
 
   async create(createUserDto: CreateUserDto): Promise<User>{
+    console.log('createUser', createUserDto);
     const createdUser = new this.userModel(createUserDto);
     return createdUser.save();
   }
@@ -26,7 +27,8 @@ export class UsersService {
   }
 
   findOne(id: any) {
-    return this.userModel.findById(id).exec();
+    return this.userModel.aggregate()
+    //return this.userModel.findById(id).exec();
   }
 
   update(id: any, updateUserDto: UpdateUserDto) {

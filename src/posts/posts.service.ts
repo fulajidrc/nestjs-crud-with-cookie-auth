@@ -7,13 +7,17 @@ import { Post, PostDocument } from './entities/post.entity';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>){
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<PostDocument>
+  ){
         
   }
 
   create(createPostDto: CreatePostDto):Promise<Post>{
     const createPost = new this.postModel(createPostDto);
-    return createPost.save();
+    const post = createPost.save();
+    createPost.populate('category')
+    return post;
   }
 
   findAll():Promise<Post[]> {
@@ -24,11 +28,13 @@ export class PostsService {
     return `This action returns a #${id} post`;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: string, updatePostDto: UpdatePostDto){
+    const post =  await this.postModel.findByIdAndUpdate(id, updatePostDto, {new: true});
+    return post.populate('category');
+   
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  remove(id: string){
+    return this.postModel.findByIdAndRemove(id);
   }
 }

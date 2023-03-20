@@ -14,6 +14,10 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { ConfigModule } from '@nestjs/config';
 import { config } from './config/config';
 import { PostsModule } from './posts/posts.module';
+import { LanguagesModule } from './languages/languages.module';
+import { ProjectsModule } from './projects/projects.module';
+import { TasksModule } from './tasks/tasks.module';
+import { AssignTasksModule } from './assign-tasks/assign-tasks.module';
 
 @Module({
   imports: [
@@ -25,7 +29,8 @@ import { PostsModule } from './posts/posts.module';
     AuthModule,
     UsersModule, 
     CategoriesModule, 
-    PostsModule,
+    PostsModule, ProjectsModule, TasksModule, AssignTasksModule, 
+   // LanguagesModule,
     //CatsModule,
   ],
   controllers: [AppController],

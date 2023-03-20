@@ -44,13 +44,20 @@ export class PostsController {
 
   @ApiResponse({...createPostResponse, description: 'Post update', status: 200})
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  async update(@Param('id') id: string, @Res() res,  @Body() updatePostDto: UpdatePostDto) {
+    const post = await this.postsService.update(id, updatePostDto);
+    return post 
+    ? res.status(200).json({message: 'Post updated successfully!', data: post})
+    : res.status(400).json({message: "Post not updated!"})
   }
 
   @ApiResponse({...createPostResponse, description: 'Post delete', status: 200})
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  async remove(@Param('id') id: string, @Res() res) {
+    const post = await this.postsService.remove(id);
+    return post 
+    ? res.status(200).json({message: 'Post deleted successfully!', data: post})
+    : res.status(400).json({message: "Post not deleted!"})
+    
   }
 }

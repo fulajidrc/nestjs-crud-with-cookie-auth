@@ -1,15 +1,14 @@
-import { OmitType, PartialType, PickType } from '@nestjs/mapped-types';
-import { CreateUserDto } from './create-user.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
-// export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class UpdateUserDto {
+    @ApiProperty({ example: 'Test name', description: 'The name of the User' })
+    @IsNotEmpty()
+    name: string;
 
-// export class UpdateUserDto extends OmitType(CreateUserDto, ['name'] as const) {}
 
-// OmitType
-
-// export class UpdateUserDto extends PartialType(
-//     OmitType(CreateUserDto, ['name'] as const),
-//   ) {}
-
-export class UpdateUserDto extends PickType(CreateUserDto, ['email'] as const) {}
-
+    @ApiProperty({ example: 'test@gmail.com', description: 'The email of the User' })
+    @IsNotEmpty()
+    @IsEmail()
+    email: string;
+}

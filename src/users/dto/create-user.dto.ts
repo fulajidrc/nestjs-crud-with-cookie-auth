@@ -1,19 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsNotEmpty } from "class-validator";
-import { User } from "../entities/user.entity";
-
-
-class Languages{
-    @ApiProperty({
-        description: '564564446',
-    })
-    id?: string;
-
-    @ApiProperty({
-        description: '1',
-    })
-    type?: string;
-}
+import { Role } from "../entities/role_enum";
 
 export class CreateUserDto {
     @ApiProperty({ example: 'Test name', description: 'The name of the User' })
@@ -31,8 +18,8 @@ export class CreateUserDto {
     password: string;
 
     @ApiProperty({
-        description: 'could contain some info',  
-        type: [Languages]      
+        description: 'Roles of user\'s',
+        type: Array<Role>
     })
-    languages?:[Languages]
+    roles: Role[]
 }

@@ -10,6 +10,7 @@ import { UsersService } from 'src/users/users.service';
 import { loginResponse, signupResponse, verifyResponse } from './res';
 import { bedResponse, ForbiddenResponse, serverErrorResponse, UnauthorizedResponse } from 'src/response_type';
 import { SignupDto } from './dto/signup.dto';
+import { Role } from 'src/users/entities/role_enum';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -36,7 +37,7 @@ export class AuthController {
         }
         const saltOrRounds = 10;
         const hashedPassword = await bcrypt.hash(signupDto.password, saltOrRounds);
-        const result = await this.usersService.createUser({...signupDto, password: hashedPassword});
+        const result = await this.usersService.createUser({...signupDto, password: hashedPassword, roles: [ Role.ADMIN ]});
         return result
         ? res.status(201).json({message: 'Signup successfully!', data: result})
         : res.status(400).json({message: 'User not added!'})

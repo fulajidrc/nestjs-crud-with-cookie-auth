@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument, Types } from "mongoose";
 import { ApiProperty } from '@nestjs/swagger';
 import { Language } from "src/languages/entities/language.entity";
+import { Role } from "./role_enum";
+import { Type } from "class-transformer";
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -33,8 +35,16 @@ export class User {
 
     sub?: string;
 
-    @Prop({type: Array<Language>})
-    languages: [Language]
+    @Prop()
+    roles: Role[]
+
+    @Prop()
+    role: Role
+
+
+    @Type(() => User)
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+    createdBy: Types.ObjectId;
 
 }
 

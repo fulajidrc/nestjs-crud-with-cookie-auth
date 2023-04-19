@@ -22,8 +22,8 @@ export class UsersService {
     return this.userModel.findOne({email: email}).exec();
   }
 
-  findAll(): Promise<User[]>{
-    return this.userModel.find().populate('posts').exec();
+  findAll(where): Promise<User[]>{
+    return this.userModel.find(where).populate('posts').exec();
   }
 
   findOne(id: any) {

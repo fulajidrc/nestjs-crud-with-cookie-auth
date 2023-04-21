@@ -21,6 +21,10 @@ export class Project {
 
     @Type(() => User)
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+    admin: Types.ObjectId;
+
+    @Type(() => User)
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
     user: Types.ObjectId;
 }
 

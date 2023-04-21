@@ -57,8 +57,11 @@ export class TasksController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tasksService.findOne(+id);
+  async findOne(@Param('id') id: string, @Res() res) {
+    const task = await this.tasksService.findOne(id);
+    return task
+    ? res.status(201).json({message: 'Task detail!', data: task})
+    : res.status(400).json({message: 'Task detail not found!'})
   }
 
   @Patch(':id')

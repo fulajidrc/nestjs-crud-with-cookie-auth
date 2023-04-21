@@ -10,8 +10,12 @@ export class ProjectsController {
 
   @Post()
   async create(@Body() createProjectDto: CreateProjectDto, @Request() req, @Res() res) {
-    createProjectDto = {...createProjectDto, user: req.user._id}
-    const project = await this.projectsService.create(createProjectDto);
+    createProjectDto = {
+      ...createProjectDto, 
+      user: req.user.role == 'user' ? req.user._id : null,
+      admin: req.user.role == 'admin' ? req.user._id : null 
+    }
+    const project = await this.projectsService.create(createProjectDto, req.user);
 
     return project 
     ? res.status(201).json({message: 'Project added successfully!', data: project})
@@ -29,7 +33,7 @@ export class ProjectsController {
 
   @Get()
   async findAll(@Request() req, @Res() res) {
-    const projects = await this.projectsService.findAll(req.user._id);
+    const projects = await this.projectsService.findAll(req.user);
 
     return projects 
     ? res.status(200).json({message: 'Project list!', data: projects})
@@ -37,8 +41,11 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(+id);
+  async findOne(@Param('id') id: string, @Res() res,) {
+    const project = await this.projectsService.findOne(id);
+    return project
+    ? res.status(200).json({message: 'Project updated successfully!', data: project})
+    : res.status(400).json({message: "Project not updated!"})
   }
 
   @Patch(':id')

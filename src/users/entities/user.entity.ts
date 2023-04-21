@@ -13,7 +13,7 @@ export type UserDocument = HydratedDocument<User>;
       virtuals: true,
     },
     timestamps: true,
-  })
+})
 export class User {
     @ApiProperty({ example: 'Test Name', description: 'The name of the User' })
     @Prop()

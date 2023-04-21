@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { TaskGroup, TaskGroupDocument } from 'src/tasks/entities/task-group.entity';
 import { Task, TaskDocument } from 'src/tasks/entities/task.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -8,6 +8,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectUser, ProjectUserDocument } from './entities/project-user.entity';
 import { Project, ProjectDocument } from './entities/project.entity';
 import { SortBulkGroupDto } from './dto/sort-bulk-group.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class ProjectsService {
@@ -17,13 +18,22 @@ export class ProjectsService {
     @InjectModel(TaskGroup.name) private taskGroupModel: Model<TaskGroupDocument>,
     @InjectModel(Task.name) private taskModel: Model<TaskDocument>
   ){}
-  async create(createProjectDto: CreateProjectDto) {
+  async create(createProjectDto: CreateProjectDto, user: User) {
     const project = await this.projectModel.create(createProjectDto);
-    await this.projectUserModel.create({
-      user: createProjectDto.user,
-      owner: true,
+    const projectUsers = [{
+      user: user._id,
+      owner: user.role == 'admin' ? true : false,
       project: project._id
-    });
+    }]
+
+    if(user.role == 'user'){
+      projectUsers.push({
+        user: user.createdBy.toString(),
+        owner:  true,
+        project: project._id
+      })
+    }
+    await this.projectUserModel.create(projectUsers);
     const defaultTaskGroup:TaskGroup[] = [
       {
         title: 'To Do',
@@ -80,22 +90,119 @@ export class ProjectsService {
     return true;
   }
 
-  async findAll(user:string) {
-    return await this.projectModel.find({user: user}).populate({
+  async findAll(user:User) {
+    const userId = new mongoose.Types.ObjectId(user._id)
+    console.log('findAll',userId);
+    //const where = user.role == 'admin' ? {admin: user._id} : { user:user._id }
+    // return await this.projectModel.find(where).populate({
+    //   path: 'task_groups',
+    //   options: { sort: { 'index': 1 } },
+    //   populate: {
+    //     path: 'tasks',
+    //     options: { sort: { 'index': 1 } },
+    //     populate: [ 
+    //       { path: 'assign_users', populate: 'assign_user' }
+    //     ]
+    //   }
+    // });
+    return await this.projectModel.aggregate([
+
+      {
+        $lookup: {
+            from: "projectusers",
+            localField: '_id',
+            foreignField: 'project',
+            as: "projectusers",
+            pipeline: [
+              { $sort : { index : 1 } },
+            ]
+        }
+      },
+      {
+        $unwind: {
+          path: "$projectusers",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $match : { 'projectusers.user' : userId } },
+      {
+        $lookup: {
+            from: "taskgroups",
+            localField: '_id',
+            foreignField: 'project',
+            as: "task_groups",
+            pipeline: [
+              { $sort : { index : 1 } },
+            ]
+        }
+      },
+      {
+        $unwind: {
+          path: "$task_groups",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+
+      {
+        $lookup: {
+          from: "tasks",
+          localField: "task_groups._id",
+          foreignField: "task_group",
+          as: "task_groups.tasks",
+          pipeline: [
+            {
+              $lookup: {
+                from: "assigntasks",
+                localField: "_id",
+                foreignField: "task",
+                as: "assign_users",
+                pipeline: [
+                  {
+                    $lookup:{
+                      from: "users",
+                      localField: "assign_user",
+                      foreignField: "_id",
+                      as: "assign_user",
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: "$assign_user",
+                      preserveNullAndEmptyArrays: true
+                    }
+                  },
+                ]
+              }
+            },
+            { $sort : { index : 1 } },
+          ]
+        }
+      },
+      { 
+        $group:{
+          _id:"$_id",
+          title : {$first:"$title"},
+          description: {$first:"$description"},
+          task_groups: {$push: "$task_groups"},
+          projectusers: {$push: "$projectusers"},
+        }
+      }
+    ])
+  }
+
+  async findOne(id: string) {
+    const project = await this.projectModel.findById(id)
+    .populate({
       path: 'task_groups',
-      options: { sort: { 'index': 1 } },
       populate: {
         path: 'tasks',
         options: { sort: { 'index': 1 } },
-        populate: [ 
+        populate: [
           { path: 'assign_users', populate: 'assign_user' }
         ]
       }
-    });
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} project`;
+    }); 
+    return project;
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto) {

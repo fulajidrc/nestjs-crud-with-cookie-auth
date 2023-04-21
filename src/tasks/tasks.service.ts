@@ -70,8 +70,11 @@ export class TasksService {
     return `This action returns all tasks`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(id: string) {
+      const task = await this.taskModel.findById(id)
+      .populate({path: 'assign_users', populate: 'assign_user'});
+      return task;
+    
   }
 
   update(id: string, updateTaskDto: UpdateTaskDto) {

@@ -25,7 +25,8 @@ export class AuthService {
             sub: user._id, 
             name: user.name,
             roles: user.roles,
-            role: user.role
+            role: user.role,
+            createdBy: user.createdBy
         };
         return {
             access_token: this.jwtService.sign(payload),

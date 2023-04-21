@@ -52,6 +52,17 @@ export class UsersController {
     res.status(HttpStatus.OK).send({message: 'User\'s list', data: users});
   }
 
+  @ApiResponse(listUserResponse)
+  @Get('admin-users')
+  async findAllUser( @Request() req, @Res() res) {
+    //const user = req.user;
+    const where = req.user.role == 'admin' 
+    ? {$or: [{createdBy: req.user._id},{_id: req.user._id}]} 
+    : {$or: [{createdBy: req.user.createdBy},{_id: req.user.createdBy}]};
+    const users = await this.usersService.findAll(where);
+    res.status(HttpStatus.OK).send({message: 'User\'s list', data: users});
+  }
+
   @Roles([Role.SUPER_ADMIN])
   @UseGuards(RolesGuard)
   @ApiResponse(getUserResponse)

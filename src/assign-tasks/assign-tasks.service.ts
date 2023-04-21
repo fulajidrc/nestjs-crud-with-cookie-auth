@@ -10,16 +10,19 @@ export class AssignTasksService {
   constructor(
     @InjectModel(AssignTask.name) private assignTaskModel: Model<AssignTaskDocument>
   ){}
-  create(createAssignTaskDto: CreateAssignTaskDto) {
-    return this.assignTaskModel.create(createAssignTaskDto);
+  async create(createAssignTaskDto: CreateAssignTaskDto) {
+    const itemAdd = await this.assignTaskModel.create(createAssignTaskDto);
+    return itemAdd.populate({path: 'assign_user'});
   }
 
   findAll() {
     return `This action returns all assignTasks`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} assignTask`;
+  async findOne(id: string) {
+    const task = await this.assignTaskModel.findById(id)
+    .populate({path: 'assign_user', populate: 'assign_user'});
+    return task;
   }
 
   update(id: number, updateAssignTaskDto: UpdateAssignTaskDto) {
